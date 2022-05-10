@@ -1,6 +1,7 @@
 package xyz.trevorkropp.test.qoi;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -89,6 +90,23 @@ public class QoiTest {
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 14, 18);
         assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldHaveIndexChunk() throws IOException {
+        byte expected = (byte) 53;
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 0, 0, 255));
+        image.setAt(1, 0, new RGBA(0, 127, 0, 255));
+        image.setAt(2, 0, new RGBA(128, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+        QoiEncoder q = new QoiEncoder(bab, image);
+
+        q.encode();
+
+        byte[] bytes = bab.toByteArray();
+        byte actual = bytes[22];
+        assertEquals(expected, actual);
     }
 
     private byte[] intToBytes(final int i) {
