@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@SuppressWarnings("SameNameButDifferent")
 @EqualsAndHashCode
 public class RGBA {
 
