@@ -5,16 +5,21 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class QoiEncoder {
+public class StandardEncoder implements Encoder {
 
     private Image image;
     private OutputStream out;
 
     private RGBA[] cache = new RGBA[64];
 
-    public QoiEncoder(OutputStream out, Image image) {
+    public StandardEncoder(OutputStream out, Image image) {
         this.image = image;
         this.out = out;
+    }
+
+    public static void encode(OutputStream out, Image image) throws IOException {
+        StandardEncoder encoder = new StandardEncoder(out, image);
+        encoder.encode();
     }
 
     public void encode() throws IOException {

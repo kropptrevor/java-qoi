@@ -12,8 +12,8 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 import xyz.trevorkropp.qoi.Image;
-import xyz.trevorkropp.qoi.QoiEncoder;
 import xyz.trevorkropp.qoi.RGBA;
+import xyz.trevorkropp.qoi.StandardEncoder;
 
 public class QoiTest {
 
@@ -28,9 +28,8 @@ public class QoiTest {
         byte[] expected = expectedOutput.toByteArray();
         Image image = new Image(100, 200);
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
-        QoiEncoder q = new QoiEncoder(bab, image);
 
-        q.encode();
+        StandardEncoder.encode(bab, image);
 
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 0, 14);
@@ -42,9 +41,8 @@ public class QoiTest {
         byte[] expected = new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 };
         Image image = new Image(100, 200);
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
-        QoiEncoder q = new QoiEncoder(bab, image);
 
-        q.encode();
+        StandardEncoder.encode(bab, image);
 
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, bytes.length - 8, bytes.length);
@@ -63,9 +61,8 @@ public class QoiTest {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(0, 0, 0, 128));
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
-        QoiEncoder q = new QoiEncoder(bab, image);
 
-        q.encode();
+        StandardEncoder.encode(bab, image);
 
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 14, 19);
@@ -83,9 +80,8 @@ public class QoiTest {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(128, 0, 0, 255));
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
-        QoiEncoder q = new QoiEncoder(bab, image);
 
-        q.encode();
+        StandardEncoder.encode(bab, image);
 
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 14, 18);
@@ -100,9 +96,8 @@ public class QoiTest {
         image.setAt(1, 0, new RGBA(0, 127, 0, 255));
         image.setAt(2, 0, new RGBA(128, 0, 0, 255));
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
-        QoiEncoder q = new QoiEncoder(bab, image);
 
-        q.encode();
+        StandardEncoder.encode(bab, image);
 
         byte[] bytes = bab.toByteArray();
         byte actual = bytes[22];
