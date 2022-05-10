@@ -17,12 +17,7 @@ public class QoiEncoder {
 
     public void encode() throws IOException {
         writeHeader();
-        out.write(0b11111111);
-        RGBA pixel = image.getAt(0, 0);
-        out.write(pixel.getR());
-        out.write(pixel.getG());
-        out.write(pixel.getB());
-        out.write(pixel.getA());
+        writeChunk();
         writeEndMarker();
     }
 
@@ -32,6 +27,23 @@ public class QoiEncoder {
         out.write(intToBytes(image.getHeight()));
         out.write(4);
         out.write(0);
+    }
+
+    private void writeChunk() throws IOException {
+        byte previousAlpha = (byte) 255;
+        RGBA pixel = image.getAt(0, 0);
+        if (previousAlpha == pixel.getA()) {
+            out.write(0b11111110);
+            out.write(pixel.getR());
+            out.write(pixel.getG());
+            out.write(pixel.getB());
+        } else {
+            out.write(0b11111111);
+            out.write(pixel.getR());
+            out.write(pixel.getG());
+            out.write(pixel.getB());
+            out.write(pixel.getA());
+        }
     }
 
     private void writeEndMarker() throws IOException {

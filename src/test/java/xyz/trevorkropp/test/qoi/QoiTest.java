@@ -55,12 +55,12 @@ public class QoiTest {
         ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream(14);
         expectedOutput.write(0b11111111); // tag
         expectedOutput.write(0); // r
-        expectedOutput.write(128); // g
+        expectedOutput.write(0); // g
         expectedOutput.write(0); // b
-        expectedOutput.write(255); // a
+        expectedOutput.write(128); // a
         byte[] expected = expectedOutput.toByteArray();
         Image image = new Image(100, 200);
-        image.setAt(0, 0, new RGBA(0, 128, 0, 255));
+        image.setAt(0, 0, new RGBA(0, 0, 0, 128));
         ByteArrayOutputStream bab = new ByteArrayOutputStream();
         QoiEncoder q = new QoiEncoder(bab, image);
 
@@ -68,6 +68,26 @@ public class QoiTest {
 
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 14, 19);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldHaveRGBChunk() throws IOException {
+        ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream(14);
+        expectedOutput.write(0b11111110); // tag
+        expectedOutput.write(128); // r
+        expectedOutput.write(0); // g
+        expectedOutput.write(0); // b
+        byte[] expected = expectedOutput.toByteArray();
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+        QoiEncoder q = new QoiEncoder(bab, image);
+
+        q.encode();
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 14, 18);
         assertArrayEquals(expected, actual);
     }
 
