@@ -10,8 +10,8 @@ public class StandardEncoder implements Encoder {
     private Image image;
     private OutputStream out;
 
-    private RGBA[] cache = new RGBA[64];
-    private RGBA prev = new RGBA(0, 0, 0, 255);
+    private RGBA[] cache;
+    private RGBA prev;
 
     public StandardEncoder(OutputStream out, Image image) {
         this.image = image;
@@ -24,6 +24,7 @@ public class StandardEncoder implements Encoder {
     }
 
     public void encode() throws IOException {
+        reset();
         writeHeader();
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -31,6 +32,11 @@ public class StandardEncoder implements Encoder {
             }
         }
         writeEndMarker();
+    }
+
+    private void reset() {
+        cache = new RGBA[64];
+        prev = new RGBA(0, 0, 0, 255);
     }
 
     private void writeHeader() throws IOException {

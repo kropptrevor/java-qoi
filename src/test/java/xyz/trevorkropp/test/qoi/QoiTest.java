@@ -126,4 +126,21 @@ public class QoiTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void shouldEncodeConsistently() throws IOException {
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(130, 0, 0, 255));
+        image.setAt(0, 1, new RGBA(130, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+        StandardEncoder encoder = new StandardEncoder(bab, image);
+        encoder.encode();
+        byte[] expected = bab.toByteArray();
+        bab.reset();
+
+        encoder.encode();
+
+        byte[] actual = bab.toByteArray();
+        assertArrayEquals(expected, actual);
+    }
+
 }
