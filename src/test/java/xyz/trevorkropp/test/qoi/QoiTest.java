@@ -112,6 +112,29 @@ public class QoiTest {
     }
 
     @Test
+    public void shouldHaveDefaultIndexChunk() throws IOException {
+        ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream(14);
+        expectedOutput.write(0); // 0 index
+        expectedOutput.write(0b11111111); // tag
+        expectedOutput.write(200); // r
+        expectedOutput.write(199); // g
+        expectedOutput.write(198); // b
+        expectedOutput.write(255); // a
+        byte[] expected = expectedOutput.toByteArray();
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 0, 0, 255));
+        image.setAt(1, 0, new RGBA(0, 0, 0, 0));
+        image.setAt(2, 0, new RGBA(200, 199, 198, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 18, 24);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void shouldHaveDiffChunk() throws IOException {
         byte expected = (byte) 0b01_11_10_10;
         Image image = new Image(100, 200);

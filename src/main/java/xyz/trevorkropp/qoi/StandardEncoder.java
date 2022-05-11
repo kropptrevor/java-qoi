@@ -36,6 +36,9 @@ public class StandardEncoder implements Encoder {
 
     private void reset() {
         cache = new RGBA[64];
+        for (int i = 0; i < cache.length; i++) {
+            cache[i] = new RGBA(0, 0, 0, 0);
+        }
         prev = new RGBA(0, 0, 0, 255);
     }
 
