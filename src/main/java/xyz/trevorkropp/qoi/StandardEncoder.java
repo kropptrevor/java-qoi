@@ -11,6 +11,7 @@ public class StandardEncoder implements Encoder {
     private OutputStream out;
 
     private RGBA[] cache = new RGBA[64];
+    private RGBA prev = new RGBA(0, 0, 0, 255);
 
     public StandardEncoder(OutputStream out, Image image) {
         this.image = image;
@@ -40,27 +41,64 @@ public class StandardEncoder implements Encoder {
         out.write(0);
     }
 
+    private int diff(byte prev, byte next) {
+        int prevNum = prev & 0xFF;
+        int nextNum = next & 0xFF;
+        return nextNum - prevNum + 2;
+    }
+
+    private boolean isSmallDiff(int diff) {
+        return diff <= 3;
+    }
+
     private void writeChunk(int x, int y) throws IOException {
-        byte previousAlpha = (byte) 255;
         RGBA pixel = image.getAt(x, y);
         int index = calculateIndex(pixel);
         RGBA cachePixel = cache[index];
         if (pixel.equals(cachePixel)) {
-            out.write((byte) index);
-        } else if (previousAlpha == pixel.getA()) {
-            out.write(0b11111110);
-            out.write(pixel.getR());
-            out.write(pixel.getG());
-            out.write(pixel.getB());
+            writeIndexChunk(index);
+        } else if (prev.getA() == pixel.getA()) {
+            int dr = diff(prev.getR(), pixel.getR());
+            int dg = diff(prev.getG(), pixel.getG());
+            int db = diff(prev.getB(), pixel.getB());
+            if (isSmallDiff(dr) && isSmallDiff(dg) && isSmallDiff(db)) {
+                writeDiffChunk(dr, dg, db);
+            } else {
+                writeRGBChunk(pixel);
+            }
             cache[index] = pixel;
         } else {
-            out.write(0b11111111);
-            out.write(pixel.getR());
-            out.write(pixel.getG());
-            out.write(pixel.getB());
-            out.write(pixel.getA());
+            writeRGBAChunk(pixel);
             cache[index] = pixel;
         }
+        prev = pixel;
+    }
+
+    private void writeRGBChunk(RGBA pixel) throws IOException {
+        out.write(0b11111110);
+        out.write(pixel.getR());
+        out.write(pixel.getG());
+        out.write(pixel.getB());
+    }
+
+    private void writeRGBAChunk(RGBA pixel) throws IOException {
+        out.write(0b11111111);
+        out.write(pixel.getR());
+        out.write(pixel.getG());
+        out.write(pixel.getB());
+        out.write(pixel.getA());
+    }
+
+    private void writeIndexChunk(int index) throws IOException {
+        out.write((byte) index);
+    }
+
+    private void writeDiffChunk(int dr, int dg, int db) throws IOException {
+        byte diffByte = 0b01 << 6;
+        diffByte |= dr << 4;
+        diffByte |= dg << 2;
+        diffByte |= db;
+        out.write(diffByte);
     }
 
     private void writeEndMarker() throws IOException {

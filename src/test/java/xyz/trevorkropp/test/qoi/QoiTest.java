@@ -17,6 +17,13 @@ import xyz.trevorkropp.qoi.StandardEncoder;
 
 public class QoiTest {
 
+    private byte[] intToBytes(final int i) {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.order(ByteOrder.BIG_ENDIAN);
+        bb.putInt(i);
+        return bb.array();
+    }
+
     @Test
     public void shouldHaveHeader() throws IOException {
         ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream(14);
@@ -104,10 +111,19 @@ public class QoiTest {
         assertEquals(expected, actual);
     }
 
-    private byte[] intToBytes(final int i) {
-        ByteBuffer bb = ByteBuffer.allocate(4);
-        bb.order(ByteOrder.BIG_ENDIAN);
-        bb.putInt(i);
-        return bb.array();
+    @Test
+    public void shouldHaveDiffChunk() throws IOException {
+        byte expected = (byte) 0b01_11_10_10;
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 0, 0, 255));
+        image.setAt(1, 0, new RGBA(129, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte actual = bytes[18];
+        assertEquals(expected, actual);
     }
+
 }
