@@ -150,6 +150,21 @@ public class QoiTest {
     }
 
     @Test
+	public void shouldHaveDiffChunkWithWraparound() throws IOException {
+        byte expected = (byte) 0b01_10_11_01;
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 255, 0, 255));
+        image.setAt(1, 0, new RGBA(128, 0, 255, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte actual = bytes[18];
+        assertEquals(expected, actual);
+	}
+
+    @Test
     public void shouldEncodeConsistently() throws IOException {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(130, 0, 0, 255));

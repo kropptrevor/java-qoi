@@ -53,7 +53,7 @@ public class StandardEncoder implements Encoder {
     private int diff(byte prev, byte next) {
         int prevNum = prev & 0xFF;
         int nextNum = next & 0xFF;
-        return nextNum - prevNum + 2;
+        return (nextNum - prevNum + 2) % 256;
     }
 
     private boolean isSmallDiff(int diff) {
