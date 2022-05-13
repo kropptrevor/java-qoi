@@ -57,7 +57,7 @@ public class StandardEncoder implements Encoder {
     }
 
     private boolean canLengthenRun(RGBA next) {
-        return runLength > 0 && prev.equals(next);
+        return runLength > 0 && prev.equals(next) && runLength <= 61;
     }
 
     private int normalizeDiff(int diff) {

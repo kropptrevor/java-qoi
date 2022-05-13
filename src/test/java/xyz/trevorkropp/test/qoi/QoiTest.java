@@ -214,6 +214,26 @@ public class QoiTest {
     }
 
     @Test
+    public void shouldHaveMaxLengthRunChunk() throws IOException {
+        byte[] expected = new byte[] {
+                (byte) 0b11111110, (byte) 128, (byte) 0, (byte) 0, // RGB
+                (byte) 0b11_111101, // run 62
+                (byte) 0b11_000000 // run 1
+        };
+        Image image = new Image(100, 200);
+        for (int i = 0; i < 64; i++) {
+            image.setAt(i, 0, new RGBA(128, 0, 0, 255));
+        }
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 14, 20);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void shouldEncodeConsistently() throws IOException {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(130, 0, 0, 255));
