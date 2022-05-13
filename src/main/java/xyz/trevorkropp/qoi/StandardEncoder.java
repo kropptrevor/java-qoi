@@ -12,6 +12,7 @@ public class StandardEncoder implements Encoder {
 
     private RGBA[] cache;
     private RGBA prev;
+    int runLength;
 
     public StandardEncoder(OutputStream out, Image image) {
         this.image = image;
@@ -40,6 +41,7 @@ public class StandardEncoder implements Encoder {
             cache[i] = new RGBA(0, 0, 0, 0);
         }
         prev = new RGBA(0, 0, 0, 255);
+        runLength = 0;
     }
 
     private void writeHeader() throws IOException {
@@ -48,6 +50,14 @@ public class StandardEncoder implements Encoder {
         out.write(intToBytes(image.getHeight()));
         out.write(4);
         out.write(0);
+    }
+
+    private boolean isNewRun(RGBA next) {
+        return runLength == 0 && prev.equals(next);
+    }
+
+    private boolean canLengthenRun(RGBA next) {
+        return runLength > 0 && prev.equals(next);
     }
 
     private int normalizeDiff(int diff) {
@@ -100,7 +110,14 @@ public class StandardEncoder implements Encoder {
         RGBA pixel = image.getAt(x, y);
         int index = calculateIndex(pixel);
         RGBA cachePixel = cache[index];
-        if (pixel.equals(cachePixel)) {
+        if (isNewRun(pixel) || canLengthenRun(pixel)) {
+            runLength++;
+        } else if (runLength > 0) {
+            writeRunChunk();
+            runLength = 0;
+            writeChunk(x, y);
+            return;
+        } else if (pixel.equals(cachePixel)) {
             writeIndexChunk(index);
         } else if (prev.getA() == pixel.getA()) {
             int dr = diff(prev.getR(), pixel.getR());
@@ -159,6 +176,12 @@ public class StandardEncoder implements Encoder {
         second |= drdg << 4;
         second |= dbdg;
         out.write(second);
+    }
+
+    private void writeRunChunk() throws IOException {
+        byte chunk = (byte) 0b11000000;
+        chunk |= runLength - 1;
+        out.write(chunk);
     }
 
     private void writeEndMarker() throws IOException {
