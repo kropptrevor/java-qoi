@@ -15,6 +15,8 @@ public final class Util {
     }
 
     private static Image convertAWTBufferedImage(BufferedImage bufferedImage) {
+        int noAlpha = 255;
+        boolean hasAlpha = false;
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
         Image image = new Image(width, height);
@@ -26,8 +28,12 @@ public final class Util {
                 int green = rgba >>> 8 & 0xFF;
                 int blue = rgba & 0xFF;
                 image.setAt(x, y, new RGBA(red, green, blue, alpha));
+                if (alpha != noAlpha) {
+                    hasAlpha = true;
+                }
             }
         }
+        image.setAlpha(hasAlpha);
         return image;
     }
 

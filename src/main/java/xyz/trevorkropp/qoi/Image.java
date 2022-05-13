@@ -14,6 +14,10 @@ public class Image {
     @Setter
     private int height;
 
+    @Getter
+    @Setter
+    private boolean alpha;
+
     private RGBA[] data;
 
     public Image(int width, int height) {
@@ -27,6 +31,9 @@ public class Image {
     public void setAt(int x, int y, RGBA rgba) {
         int index = getIndex(x, y);
         data[index] = rgba;
+        if (rgba.getA() != (byte) 255) {
+            setAlpha(true);
+        }
     }
 
     public RGBA getAt(int x, int y) {

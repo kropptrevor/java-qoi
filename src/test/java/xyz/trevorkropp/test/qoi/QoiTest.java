@@ -308,4 +308,18 @@ public class QoiTest {
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    public void shouldEncodeCorrectlyScribblesWithAlpha() throws IOException {
+        byte[] expected = Files.readAllBytes(Paths.get(fileDirectory + "scribbles.qoi"));
+        assertNotNull(expected);
+        assertTrue(expected.length >= (14 + 8));
+        Image image = Util.readToImage(Paths.get(fileDirectory + "scribbles.png"));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] actual = bab.toByteArray();
+        assertArrayEquals(expected, actual);
+    }
+
 }

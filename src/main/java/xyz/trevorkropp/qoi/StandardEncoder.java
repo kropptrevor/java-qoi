@@ -12,7 +12,11 @@ public class StandardEncoder implements Encoder {
 
     private RGBA[] cache;
     private RGBA prev;
-    int runLength;
+    private int runLength;
+
+    private static final int ChannelRGB = 3;
+    private static final int ChannelRGBA = 4;
+    private static final int ColorSpaceSRGB = 0;
 
     public StandardEncoder(OutputStream out, Image image) {
         this.image = image;
@@ -51,8 +55,12 @@ public class StandardEncoder implements Encoder {
         out.write(new byte[] { 'q', 'o', 'i', 'f' });
         out.write(intToBytes(image.getWidth()));
         out.write(intToBytes(image.getHeight()));
-        out.write(3);
-        out.write(0);
+        if (image.isAlpha()) {
+            out.write(ChannelRGBA);
+        } else {
+            out.write(ChannelRGB);
+        }
+        out.write(ColorSpaceSRGB);
     }
 
     private boolean isNewRun(RGBA next) {
