@@ -234,6 +234,27 @@ public class QoiTest {
     }
 
     @Test
+    public void shouldHaveIndexChunkAfterRun() throws IOException {
+        byte[] expected = new byte[] {
+                (byte) 0b11_000001, // run 2
+                (byte) 0b11111110, (byte) 127, (byte) 0, (byte) 0, // RGB
+                (byte) 0b00_110101, // index 53
+        };
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(0, 0, 0, 255));
+        image.setAt(1, 0, new RGBA(0, 0, 0, 255));
+        image.setAt(2, 0, new RGBA(127, 0, 0, 255));
+        image.setAt(3, 0, new RGBA(0, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 14, 20);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void shouldEncodeConsistently() throws IOException {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(130, 0, 0, 255));

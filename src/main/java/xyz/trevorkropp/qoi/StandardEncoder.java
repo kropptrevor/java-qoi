@@ -112,6 +112,7 @@ public class StandardEncoder implements Encoder {
         RGBA cachePixel = cache[index];
         if (isNewRun(pixel) || canLengthenRun(pixel)) {
             runLength++;
+            cache[index] = pixel;
         } else if (runLength > 0) {
             writeRunChunk();
             runLength = 0;
