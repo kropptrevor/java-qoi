@@ -2,11 +2,15 @@ package xyz.trevorkropp.test.qoi;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
@@ -16,6 +20,8 @@ import xyz.trevorkropp.qoi.RGBA;
 import xyz.trevorkropp.qoi.StandardEncoder;
 
 public class QoiTest {
+
+    private final String fileDirectory = "./src/test/img/";
 
     private byte[] intToBytes(final int i) {
         ByteBuffer bb = ByteBuffer.allocate(4);
@@ -30,7 +36,7 @@ public class QoiTest {
         expectedOutput.write(new byte[] { 'q', 'o', 'i', 'f' }); // magic
         expectedOutput.write(intToBytes(100)); // width
         expectedOutput.write(intToBytes(200)); // height
-        expectedOutput.write(4); // channels
+        expectedOutput.write(3); // channels
         expectedOutput.write(0); // colorspace
         byte[] expected = expectedOutput.toByteArray();
         Image image = new Image(100, 200);
@@ -283,6 +289,20 @@ public class QoiTest {
         bab.reset();
 
         encoder.encode();
+
+        byte[] actual = bab.toByteArray();
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldEncodeCorrectly10x10() throws IOException {
+        byte[] expected = Files.readAllBytes(Paths.get(fileDirectory + "10x10.qoi"));
+        assertNotNull(expected);
+        assertTrue(expected.length >= (14 + 8));
+        Image image = Util.readToImage(Paths.get(fileDirectory + "10x10.png"));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
 
         byte[] actual = bab.toByteArray();
         assertArrayEquals(expected, actual);

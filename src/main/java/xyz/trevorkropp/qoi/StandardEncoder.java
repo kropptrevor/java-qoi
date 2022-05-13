@@ -51,7 +51,7 @@ public class StandardEncoder implements Encoder {
         out.write(new byte[] { 'q', 'o', 'i', 'f' });
         out.write(intToBytes(image.getWidth()));
         out.write(intToBytes(image.getHeight()));
-        out.write(4);
+        out.write(3);
         out.write(0);
     }
 
