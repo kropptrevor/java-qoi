@@ -56,8 +56,34 @@ public class StandardEncoder implements Encoder {
         return (nextNum - prevNum + 2) % 256;
     }
 
+    private int lumaDg(RGBA prev, RGBA next) {
+        int prevG = prev.getG() & 0xFF;
+        int nextG = next.getG() & 0xFF;
+        return nextG - prevG + 32;
+    }
+
+    private int lumaDrDg(RGBA prev, RGBA next) {
+        int prevR = prev.getR() & 0xFF;
+        int nextR = next.getR() & 0xFF;
+        int prevG = prev.getG() & 0xFF;
+        int nextG = next.getG() & 0xFF;
+        return (nextR - prevR) - (nextG - prevG) + 8;
+    }
+
+    private int lumaDbDg(RGBA prev, RGBA next) {
+        int prevB = prev.getB() & 0xFF;
+        int nextB = next.getB() & 0xFF;
+        int prevG = prev.getG() & 0xFF;
+        int nextG = next.getG() & 0xFF;
+        return (nextB - prevB) - (nextG - prevG) + 8;
+    }
+
     private boolean isSmallDiff(int diff) {
         return diff <= 3;
+    }
+
+    private boolean isSmallLumaDiff(int dg, int drdg, int dbdg) {
+        return dg <= 63 && drdg <= 15 && dbdg <= 15;
     }
 
     private void writeChunk(int x, int y) throws IOException {
@@ -70,8 +96,13 @@ public class StandardEncoder implements Encoder {
             int dr = diff(prev.getR(), pixel.getR());
             int dg = diff(prev.getG(), pixel.getG());
             int db = diff(prev.getB(), pixel.getB());
+            int dgLuma = lumaDg(prev, pixel);
+            int drdgLuma = lumaDrDg(prev, pixel);
+            int dbdgLuma = lumaDbDg(prev, pixel);
             if (isSmallDiff(dr) && isSmallDiff(dg) && isSmallDiff(db)) {
                 writeDiffChunk(dr, dg, db);
+            } else if (isSmallLumaDiff(dgLuma, drdgLuma, dbdgLuma)) {
+                writeLumaChunk(dgLuma, drdgLuma, dbdgLuma);
             } else {
                 writeRGBChunk(pixel);
             }
@@ -108,6 +139,16 @@ public class StandardEncoder implements Encoder {
         diffByte |= dg << 2;
         diffByte |= db;
         out.write(diffByte);
+    }
+
+    private void writeLumaChunk(int dg, int drdg, int dbdg) throws IOException {
+        byte first = (byte) 0b10000000;
+        first |= dg;
+        out.write(first);
+        byte second = (byte) 0;
+        second |= drdg << 4;
+        second |= dbdg;
+        out.write(second);
     }
 
     private void writeEndMarker() throws IOException {

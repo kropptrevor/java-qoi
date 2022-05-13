@@ -165,6 +165,21 @@ public class QoiTest {
 	}
 
     @Test
+    public void shouldHaveLumaChunk() throws IOException {
+        byte[] expected = new byte[]{(byte) 0b10_111111, (byte) 0b0000_1111};
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 0, 0, 255));
+        image.setAt(1, 0, new RGBA(151, 31, 38, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 18, 20);
+        assertArrayEquals(expected, actual);
+	}
+
+    @Test
     public void shouldEncodeConsistently() throws IOException {
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(130, 0, 0, 255));
