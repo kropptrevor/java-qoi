@@ -21,11 +21,18 @@ public class Image {
     private RGBA[] data;
 
     public Image(int width, int height) {
+        this(width, height, new RGBA(0, 0, 0, 255));
+    }
+
+    public Image(int width, int height, RGBA fill) {
         this.width = width;
         this.height = height;
         int size = width * height;
         data = new RGBA[size];
-        Arrays.fill(data, new RGBA(0, 0, 0, 255));
+        Arrays.fill(data, fill);
+        if (fill.getA() != (byte) 255) {
+            setAlpha(true);
+        }
     }
 
     public void setAt(int x, int y, RGBA rgba) {
