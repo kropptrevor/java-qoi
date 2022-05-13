@@ -32,6 +32,9 @@ public class StandardEncoder implements Encoder {
                 writeChunk(x, y);
             }
         }
+        if (runLength > 0) {
+            writeRunChunk();
+        }
         writeEndMarker();
     }
 

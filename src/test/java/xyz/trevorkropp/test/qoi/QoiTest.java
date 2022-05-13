@@ -237,7 +237,7 @@ public class QoiTest {
     public void shouldHaveIndexChunkAfterRun() throws IOException {
         byte[] expected = new byte[] {
                 (byte) 0b11_000001, // run 2
-                (byte) 0b11111110, (byte) 127, (byte) 0, (byte) 0, // RGB
+                (byte) 0b11111110, 127, 0, 0, // RGB
                 (byte) 0b00_110101, // index 53
         };
         Image image = new Image(100, 200);
@@ -252,6 +252,23 @@ public class QoiTest {
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 14, 20);
         assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldHaveRunChunkBeforeEndMarker() throws IOException {
+        byte expected = (byte) 0b11_000000;
+        int width = 100;
+        int height = 200;
+        Image image = new Image(width, height);
+        image.setAt(width - 2, height - 1, new RGBA(128, 0, 0, 255));
+        image.setAt(width - 1, height - 1, new RGBA(128, 0, 0, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte actual = bytes[bytes.length - 9];
+        assertEquals(expected, actual);
     }
 
     @Test
