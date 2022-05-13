@@ -150,7 +150,7 @@ public class QoiTest {
     }
 
     @Test
-	public void shouldHaveDiffChunkWithWraparound() throws IOException {
+    public void shouldHaveDiffChunkWithWraparound() throws IOException {
         byte expected = (byte) 0b01_10_11_01;
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(128, 255, 0, 255));
@@ -162,11 +162,11 @@ public class QoiTest {
         byte[] bytes = bab.toByteArray();
         byte actual = bytes[18];
         assertEquals(expected, actual);
-	}
+    }
 
     @Test
     public void shouldHaveLumaChunk() throws IOException {
-        byte[] expected = new byte[]{(byte) 0b10_111111, (byte) 0b0000_1111};
+        byte[] expected = new byte[] { (byte) 0b10_111111, (byte) 0b0000_1111 };
         Image image = new Image(100, 200);
         image.setAt(0, 0, new RGBA(128, 0, 0, 255));
         image.setAt(1, 0, new RGBA(151, 31, 38, 255));
@@ -177,7 +177,22 @@ public class QoiTest {
         byte[] bytes = bab.toByteArray();
         byte[] actual = Arrays.copyOfRange(bytes, 18, 20);
         assertArrayEquals(expected, actual);
-	}
+    }
+
+    @Test
+    public void shouldHaveLumaChunkWithWraparound() throws IOException {
+        byte[] expected = new byte[] { (byte) 0b10_100010, (byte) 0b0110_0101 };
+        Image image = new Image(100, 200);
+        image.setAt(0, 0, new RGBA(128, 255, 0, 255));
+        image.setAt(1, 0, new RGBA(128, 1, 255, 255));
+        ByteArrayOutputStream bab = new ByteArrayOutputStream();
+
+        StandardEncoder.encode(bab, image);
+
+        byte[] bytes = bab.toByteArray();
+        byte[] actual = Arrays.copyOfRange(bytes, 18, 20);
+        assertArrayEquals(expected, actual);
+    }
 
     @Test
     public void shouldEncodeConsistently() throws IOException {

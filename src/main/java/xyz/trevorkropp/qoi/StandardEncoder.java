@@ -50,16 +50,24 @@ public class StandardEncoder implements Encoder {
         out.write(0);
     }
 
+    private int normalizeDiff(int diff) {
+        diff = diff % 256;
+        if (diff < 0) {
+            diff += 256;
+        }
+        return diff;
+    }
+
     private int diff(byte prev, byte next) {
         int prevNum = prev & 0xFF;
         int nextNum = next & 0xFF;
-        return (nextNum - prevNum + 2) % 256;
+        return normalizeDiff(nextNum - prevNum + 2);
     }
 
     private int lumaDg(RGBA prev, RGBA next) {
         int prevG = prev.getG() & 0xFF;
         int nextG = next.getG() & 0xFF;
-        return nextG - prevG + 32;
+        return normalizeDiff(nextG - prevG + 32);
     }
 
     private int lumaDrDg(RGBA prev, RGBA next) {
@@ -67,7 +75,8 @@ public class StandardEncoder implements Encoder {
         int nextR = next.getR() & 0xFF;
         int prevG = prev.getG() & 0xFF;
         int nextG = next.getG() & 0xFF;
-        return (nextR - prevR) - (nextG - prevG) + 8;
+        int drdg = (nextR - prevR) - (nextG - prevG) + 8;
+        return normalizeDiff(drdg);
     }
 
     private int lumaDbDg(RGBA prev, RGBA next) {
@@ -75,7 +84,8 @@ public class StandardEncoder implements Encoder {
         int nextB = next.getB() & 0xFF;
         int prevG = prev.getG() & 0xFF;
         int nextG = next.getG() & 0xFF;
-        return (nextB - prevB) - (nextG - prevG) + 8;
+        int dbdg = (nextB - prevB) - (nextG - prevG) + 8;
+        return normalizeDiff(dbdg);
     }
 
     private boolean isSmallDiff(int diff) {
